@@ -1,0 +1,1 @@
+const htmlSoup = require(__dirname + '/../index.js');

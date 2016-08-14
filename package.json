@@ -1,0 +1,25 @@
+{
+  "name": "html-soup",
+  "version": "1.0.0",
+  "description": "A package to do some basic HTML parsing and CSS selection",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/calebsander/html-soup.git"
+  },
+  "keywords": [
+    "html",
+    "soup",
+    "select",
+    "css",
+    "parse"
+  ],
+  "author": "Caleb Sander",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/calebsander/html-soup/issues"
+  }
+}
