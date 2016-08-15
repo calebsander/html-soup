@@ -15,7 +15,7 @@ class HtmlTag {
 	_setChildren(children) {
 		this.children = children;
 	}
-	get child() { //if you know there is only one child
+	get child() { //utility function; use if you know there is only one child
 		return this.children[0];
 	}
 	get classes() {
