@@ -10,18 +10,18 @@ A Node.js package to do some basic HTML parsing and CSS selectors.
 - `trimText`: Whether to trim all text (removing leading or trailing whitespace) between HTML tags. If the trimmed text is empty, no text node will be created.
 - DOM format: Either a single `TextNode` or `HtmlTag` or an array of instances of either class. `TextNode` has a single field, `text` containing the text inside. `HtmlTag` has the following fields:
 	- `type`: The HTML tag type, e.g. `div`. If the document uses an uppercase tag, this field's value will be uppercased as well.
-	- `attributes`: An `Object` mapping attribute names to string values if provided, or `true` if no value is provided. For example, `<input type = "checkbox" checked />` gives an `attributes` value of `{type: 'checkbox', checked: true}`.
+	- `attributes`: An `Object` mapping attribute names to string values if provided, or `true` if no value is provided. For example, `<input type = "checkbox" checked />` gives an `attributes` value of `{type: 'checkbox', checked: true}`. Attributes are automatically lower-cased.
 	- `children`: An `Array` of child nodes. Each is either a `TextNode` or `HtmlTag`.
 	- `parent`: The parent `HtmlTag`. On the root node, this field has the value `null`.
 
 When navigating the DOM tree, you can use `htmlTag.child` to get the first child of a tag. `htmlTag.classes` will give a set of classes of the tag.
 
 #### Selecting
-`htmlSoup.select(dom, selectorString) -> [HtmlTag]`
+`htmlSoup.select(dom, selectorString) -> Set<HtmlTag>`
 - `dom`: DOM tree to search through (presumably an output of `htmlSoup.parse()`)
 - `selectorString`: A CSS selector string specifying which elements to select. Allowed parts of the selector (can be combined):
 	- `*`: select elements of any type
-	- `tag`: select elements of type `tag`
+	- `tag`: select elements of type `tag` (case-insensitive)
 	- `.class`: select elements of class `class`
 	- `#id`: select elements of id `id`
 	- `selector1 selector2`: select elements matching `selector2` that are descendants of elements matching `selector1`
