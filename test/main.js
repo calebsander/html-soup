@@ -76,6 +76,9 @@ assertDomMatches(htmlSoup.parse('< abc one two=3 four= five six =seven eight = "
 	ten: 'eleven'
 }, children: [new TextNode('text')]}));
 assertDomMatches(htmlSoup.parse('&amp;&abc &abc;&gt; def'), new TextNode('&&abc &abc;> def'))
+assertDomMatches(htmlSoup.parse('<script> const abc = 1; console.log(2 < abc > 3); </script>'), new HtmlTag({type: 'script', attributes: {}, children: [
+	new TextNode('const abc = 1; console.log(2 < abc > 3);')
+]}))
 
 //Basic selectors
 let dom = htmlSoup.parse('<e checked /><c /><a><b id = "three"><c disabled="disabled"></c></b><c /></a><d /><c class = "one two"></c>');
