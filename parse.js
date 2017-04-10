@@ -39,7 +39,6 @@ const
 	READING_ESCAPE_ATTRIBUTE = new ReadingState(false),
 	DONE = null;
 const WHITESPACE = /^\s$/;
-const AMPERSAND_CODE_CHAR = /^[0-9a-zA-Z#]$/;
 const SINGLETON_TAGS = new Set()
 	.add('area')
 	.add('base')
@@ -55,7 +54,68 @@ const SINGLETON_TAGS = new Set()
 	.add('param')
 	.add('source');
 
+/*
+	A tree structure used to contain all the valid non-numeric ampersand codes.
+	Each level of the tree contains a mapping of characters to sub-trees.
+	If the path through the tree is a valid complete code (as opposed to just the start of one),
+	then '' will be in the map.
+
+	Example containing the codes 'abc', 'abcd', and 'def'
+	   root
+	  /    \
+	 'a'  'd'
+	  |    |
+	 'b'  'e'
+	  |    |
+	 'c'  'f'
+	 / \    \
+	'' 'd'  ''
+	    |
+	   ''
+*/
+class TextTree {
+	constructor() {
+		this.children = new Map;
+	}
+
+	//Inserts the specified string into the tree,
+	//including all necessary sub-trees
+	insertWord(word) {
+		const firstLetter = word.substring(0, 1); //can be '' if word is empty
+		let child = this.children.get(firstLetter);
+		if (child === undefined) {
+			child = new TextTree;
+			this.children.set(firstLetter, child);
+		}
+		if (word !== '') child.insertWord(word.substring(1));
+	}
+	getChild(letter) {
+		return this.children.get(letter);
+	}
+}
+const AMPERSAND_TEXT_CODES = new TextTree;
+for (const escapeCode in htmlDecode) AMPERSAND_TEXT_CODES.insertWord(escapeCode);
+const AMPERSAND_CODE_CHAR = /^[#\d]$/;
+//Returns whether the ampersand code starting at index in string
+//should be treated as an escape sequence or just normal text
+function validAmpersandCode(string, index) {
+	if (AMPERSAND_CODE_CHAR.test(string[index])) return true; //if it starts "&1" or "&#", it must start an escape sequence
+	//Iterate down levels of the escape code tree and indices in the string
+	//If tree is ever undefined, we know no codes start with this sequence
+	for (let tree = AMPERSAND_TEXT_CODES; tree; tree = tree.getChild(string[index]), index++) {
+		if (string[index] === ';') return !!(tree.getChild('')); //make sure this a valid complete code, not just the start to one
+	}
+	return false;
+}
+
+//Returns whether matchString occurs starting at string[index]
+function followedBy(string, index, matchString) {
+	const {length} = matchString;
+	return string.substring(index, index + length) === matchString;
+}
+
 function readChildren(string, index, parent, trimText) {
+	const inScript = parent && parent.type === 'script';
 	const originalIndex = index;
 	const children = [];
 	let state = READING_TEXT;
@@ -68,8 +128,8 @@ function readChildren(string, index, parent, trimText) {
 		if (state.ignoreWhitespace && whitespace) continue;
 		switch (state) {
 			case READING_TEXT:
-				if (char === '<' && !inComment) {
-					if (string.substring(index + 1, index + 4) === '!--') {
+				if (char === '<' && (!inScript || (inScript && followedBy(string, index, '</script>'))) && !inComment) {
+					if (followedBy(string, index, '<!--')) {
 						text += '<!--';
 						inComment = true;
 						index += 3;
@@ -84,11 +144,11 @@ function readChildren(string, index, parent, trimText) {
 						selfClosing = false;
 					}
 				}
-				else if (char === '&' && AMPERSAND_CODE_CHAR.test(string[index + 1])) {
+				else if (char === '&' && !inScript && validAmpersandCode(string, index + 1)) {
 					state = READING_ESCAPE;
 					escapeCode = '';
 				}
-				else if (inComment && string.substring(index, index + 3) === '-->') {
+				else if (inComment && followedBy(string, index, '-->')) {
 					text += '-->';
 					inComment = false;
 					index += 2;
@@ -194,7 +254,7 @@ function readChildren(string, index, parent, trimText) {
 					state = IN_TAG;
 				}
 				else {
-					if (char === '&' && AMPERSAND_CODE_CHAR.test(string[index + 1])) {
+					if (char === '&' && validAmpersandCode(string, index + 1)) {
 						state = READING_ESCAPE_ATTRIBUTE;
 						escapeCode = '';
 					}

@@ -75,6 +75,7 @@ assertDomMatches(htmlSoup.parse('< abc one two=3 four= five six =seven eight = "
 	eight: '"nine"',
 	ten: 'eleven'
 }, children: [new TextNode('text')]}));
+assertDomMatches(htmlSoup.parse('&amp;&abc &abc;&gt; def'), new TextNode('&&abc &abc;> def'))
 
 //Basic selectors
 let dom = htmlSoup.parse('<e checked /><c /><a><b id = "three"><c disabled="disabled"></c></b><c /></a><d /><c class = "one two"></c>');
