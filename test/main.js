@@ -1,5 +1,5 @@
-const assert = require(__dirname + '/assert.js');
-const htmlSoup = require(__dirname + '/../index.js');
+const assert = require('./assert');
+const htmlSoup = require('../dist');
 
 const {TextNode, HtmlTag} = htmlSoup.parse;
 function assertDomMatches(actual, expected) {
@@ -102,9 +102,13 @@ assertDomMatches(htmlSoup.select(dom, 'c[disabled], c.one.two, div'), new Set([d
 //Pseudo-classes
 assertDomMatches(htmlSoup.select(dom, ':checked'), new Set([e]));
 assertDomMatches(htmlSoup.select(dom, ':disabled'), new Set([disabledC]));
-assertDomMatches(htmlSoup.select(htmlSoup.parse('<a>abc</a><b></b><c><!--comment--></c><d><!--abc-->--></d>'), ':empty'), new Set([
+assertDomMatches(htmlSoup.select(
+	htmlSoup.parse('<a>abc</a><b></b><c><!--comment--></c><d><!--abc-->--></d><e>  <!--abc--> <!--def--> </e>'),
+	':empty'
+), new Set([
 	new HtmlTag({type: 'b', attributes: {}, children: []}),
-	new HtmlTag({type: 'c', attributes: {}, children: [new TextNode('<!--comment-->')]})
+	new HtmlTag({type: 'c', attributes: {}, children: [new TextNode('<!--comment-->')]}),
+	new HtmlTag({type: 'e', attributes: {}, children: [new TextNode('<!--abc--> <!--def-->')]})
 ]));
 assertDomMatches(htmlSoup.select(dom, ':first-child'), new Set([e, b, disabledC]));
 assertDomMatches(htmlSoup.select(dom, 'c:first-of-type'), new Set([emptyC1, emptyC2, disabledC]));
@@ -138,7 +142,9 @@ let firstA = new HtmlTag({type: 'a', attributes: {one: 'two', two: 'three-four',
 	secondA = new HtmlTag({type: 'a', attributes: {two: 'threefour', five: true, six: 'eight'}, children: []});
 assertDomMatches([firstA, secondA], dom);
 assertDomMatches(htmlSoup.select(dom, '[five]'), new Set([secondA]));
-for (let selector of ['a[six=eight]', '[six=eight]', '[six="eight"]', 'a[two][six=eight]']) assertDomMatches(htmlSoup.select(dom, selector), new Set([secondA]));
+for (let selector of ['a[six=eight]', '[six=eight]', '[six="eight"]', 'a[two][six=eight]']) {
+	assertDomMatches(htmlSoup.select(dom, selector), new Set([secondA]));
+}
 assertDomMatches(htmlSoup.select(dom, '[two~=four]'), new Set([firstA]));
 assertDomMatches(htmlSoup.select(dom, '[two|=three]'), new Set([firstA]));
 assertDomMatches(htmlSoup.select(dom, '[two^=three]'), new Set([firstA, secondA]));

@@ -12,42 +12,6 @@ const assert = {
 		}
 		if (!constructorMatched) throw new TypeError(util.inspect(instance) + ' is not an instance of ' + constructors.map((constructor) => constructor.name).join(' or '));
 	},
-	integer(instance) {
-		assert.instanceOf(instance, Number);
-		if (!Number.isSafeInteger(instance)) throw new RangeError(util.inspect(instance) + ' is not an integer');
-	},
-	between(lower, value, upper, message) {
-		if (value < lower || value >= upper) {
-			const errorMessage = util.inspect(value) + ' is not in [' + util.inspect(lower) + ',' + util.inspect(upper) + ')';
-			if (message === undefined) throw new RangeError(errorMessage);
-			else throw new RangeError(message + ' (' + errorMessage + ')');
-		}
-	},
-	byteUnsignedInteger(value) {
-		assert.integer(value);
-		assert.between(0, value, 256);
-	},
-	fourByteUnsignedInteger(value) {
-		assert.integer(value);
-		assert.between(0, value, 4294967296);
-	},
-	fail(message) {
-		throw new Error(message);
-	},
-	assert(condition, message) { //eslint-disable-line no-unreachable
-		if (!condition) assert.fail(message);
-	},
-	throws(block, message) {
-		let success = true;
-		try {
-			block();
-			success = false;
-		}
-		catch (e) {
-			if (message !== undefined) assert.message(e, message);
-		}
-		assert.assert(success, 'Should throw an error');
-	},
 	equal(actual, expected) {
 		const error = new RangeError('Expected ' + util.inspect(expected) + ' but got ' + util.inspect(actual));
 		if (expected && expected.constructor === Object) {
@@ -96,32 +60,9 @@ const assert = {
 				catch (e) { throw error } //eslint-disable-line semi
 			}
 		}
-		else if (expected && expected.constructor === ArrayBuffer) {
-			if (!(actual && actual.constructor === ArrayBuffer)) throw error;
-			try { assert.equal(actual.byteLength, expected.byteLength) } //eslint-disable-line semi
-			catch (e) { throw error } //eslint-disable-line semi
-			actual = new Uint8Array(actual);
-			expected = new Uint8Array(expected);
-			try {
-				for (let i = 0; i < expected.length; i++) assert.equal(actual[i], expected[i]);
-			}
-			catch (e) { throw error }
-		}
-		else if (!(expected === undefined || expected === null) && expected.equals instanceof Function) {
-			let equals;
-			try { equals = expected.equals(actual) } //eslint-disable-line semi
-			catch (e) { throw new Error('equals() is not implemented for ' + util.inspect(expected)) } //eslint-disable-line semi
-			if (!equals) throw error;
-		}
 		else {
 			if (expected !== actual) throw error;
 		}
-	},
-	message(err, message) {
-		assert.assert(
-			message && err && err.message.startsWith(message),
-			'Message "' + (err ? err.message : 'No error thrown') + '" does not start with "' + message + '"'
-		);
 	}
 };
 module.exports = assert;
