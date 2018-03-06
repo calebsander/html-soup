@@ -107,11 +107,11 @@ class SingleSelector extends Selector { //selector that doesn't relate different
 			}
 			let segmentEnd = true
 			let newState: SelectorReadingState | null
-			if (char === '.') newState = CLASS;
-			else if (char === '#') newState = ID;
-			else if (char === '[') newState = ATTRIBUTES;
-			else if (char === ']') newState = null;
-			else if (char === ':') newState = PSEUDOS;
+			if (char === '.') newState = CLASS
+			else if (char === '#') newState = ID
+			else if (char === '[') newState = ATTRIBUTES
+			else if (char === ']') newState = null
+			else if (char === ':') newState = PSEUDOS
 			else {
 				segmentEnd = false
 				name += char
@@ -233,7 +233,7 @@ class SingleSelector extends Selector { //selector that doesn't relate different
 									default:
 										continue elementLoop
 								}
-								break;
+								break
 							case 'progress':
 								if (element.attributes.value && element.attributes.max) continue elementLoop
 								break
@@ -320,12 +320,12 @@ class AfterSelector extends Selector {
 		super()
 	}
 	findMatches(dom: Children, recursive: boolean, matchSet: MatchSet) {
-		const beforeMatches = new Set;
-		this.before.findMatches(dom, recursive, beforeMatches);
+		const beforeMatches = new Set
+		this.before.findMatches(dom, recursive, beforeMatches)
 		for (const beforeMatch of beforeMatches) {
-			const siblings = beforeMatch.parent.children;
-			const afterSiblings = siblings.slice(siblings.indexOf(beforeMatch) + 1);
-			this.after.findMatches(afterSiblings, false, matchSet);
+			const siblings = beforeMatch.parent.children
+			const afterSiblings = siblings.slice(siblings.indexOf(beforeMatch) + 1)
+			this.after.findMatches(afterSiblings, false, matchSet)
 		}
 	}
 }
