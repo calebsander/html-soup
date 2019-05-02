@@ -12,13 +12,13 @@ export interface HtmlParams {
 }
 
 export class TextNode {
-	constructor(public readonly text: string) {}
+	constructor(readonly text: string) {}
 }
 export class HtmlTag {
-	public readonly type: string
-	public readonly attributes: Attributes
-	public children!: Children
-	public readonly parent: HtmlTag | null
+	readonly type: string
+	readonly attributes: Attributes
+	children!: Children
+	readonly parent: HtmlTag | null
 	private classSet: Set<string> | undefined
 
 	constructor({type, attributes, children, parent}: HtmlParams) {
@@ -28,13 +28,13 @@ export class HtmlTag {
 		this.parent = parent
 	}
 
-	public setChildren(children: Children) {
+	setChildren(children: Children) {
 		this.children = children
 	}
-	public get child(): TextNode | HtmlTag { //utility function; use if you know there is only one child
+	get child(): TextNode | HtmlTag { //utility function; use if you know there is only one child
 		return this.children[0]
 	}
-	public get classes(): Set<string> {
+	get classes(): Set<string> {
 		if (!this.classSet) {
 			this.classSet = (typeof this.attributes.class === 'string')
 				? new Set(this.attributes.class.split(' '))
@@ -45,7 +45,7 @@ export class HtmlTag {
 }
 
 class ReadingState {
-	constructor(public readonly ignoreWhitespace: boolean) {}
+	constructor(readonly ignoreWhitespace: boolean) {}
 }
 const
 	READING_TEXT = new ReadingState(false),
@@ -92,16 +92,12 @@ const SINGLETON_TAGS = new Set([
 	   ''
 */
 class TextTree {
-	private readonly children: Map<string, TextTree>
-
-	constructor() {
-		this.children = new Map
-	}
+	private readonly children = new Map<string, TextTree>()
 
 	//Inserts the specified string into the tree,
 	//including all necessary sub-trees
-	public insertWord(word: string): void {
-		const firstLetter = word.substring(0, 1) //can be '' if word is empty
+	insertWord(word: string): void {
+		const firstLetter = word.slice(0, 1) //can be '' if word is empty
 		let child = this.children.get(firstLetter)
 		if (!child) {
 			child = new TextTree
@@ -109,7 +105,7 @@ class TextTree {
 		}
 		if (word) child.insertWord(word.substring(1))
 	}
-	public getChild(letter: string): TextTree | undefined {
+	getChild(letter: string): TextTree | undefined {
 		return this.children.get(letter)
 	}
 }
@@ -122,8 +118,12 @@ function validAmpersandCode(string: string, index: number): boolean {
 	if (AMPERSAND_CODE_CHAR.test(string[index])) return true //if it starts "&1" or "&#", it must start an escape sequence
 	//Iterate down levels of the escape code tree and indices in the string
 	//If tree is ever undefined, we know no codes start with this sequence
-	for (let tree: TextTree | undefined = AMPERSAND_TEXT_CODES; tree; tree = tree.getChild(string[index]), index++) {
-		if (string[index] === ';') return tree.getChild('') !== undefined //make sure this a valid complete code, not just the start to one
+	for (
+		let tree: TextTree | undefined = AMPERSAND_TEXT_CODES;
+		tree;
+		tree = tree.getChild(string[index++])
+	) {
+		if (string[index] === ';') return !!tree.getChild('') //make sure this a valid complete code, not just the start to one
 	}
 	return false
 }
@@ -254,7 +254,7 @@ function readChildren(string: string, index: number, parent: HtmlTag | null, tri
 				if (char === '=') state = LOOKING_FOR_VALUE_START
 				else if (tagChar) {
 					if (attributeName!) {
-						attributes![attributeName.toLowerCase()] = true
+						attributes![attributeName!.toLowerCase()] = true
 						attributeName = ''
 					}
 					if (tagChar) {
@@ -264,7 +264,7 @@ function readChildren(string: string, index: number, parent: HtmlTag | null, tri
 				}
 				else {
 					if (WHITESPACE.test(string[index - 1]) && attributeName!) {
-						attributes![attributeName.toLowerCase()] = true
+						attributes![attributeName!.toLowerCase()] = true
 						attributeName = ''
 					}
 					attributeName! += char
@@ -281,12 +281,12 @@ function readChildren(string: string, index: number, parent: HtmlTag | null, tri
 				break
 			case READING_ATTRIBUTE_VALUE:
 				if (char === valueEndCharacter! || (valueEndCharacter! === null && whitespace)) {
-					attributes[attributeName.toLowerCase()] = value!
+					attributes![attributeName!.toLowerCase()] = value!
 					state = READING_ATTRIBUTE_NAME
 					attributeName = ''
 				}
 				else if (valueEndCharacter! === null && (char === '/' || char === '>')) {
-					attributes[attributeName.toLowerCase()] = value!
+					attributes![attributeName!.toLowerCase()] = value!
 					index--
 					state = IN_TAG
 				}

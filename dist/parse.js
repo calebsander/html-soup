@@ -74,12 +74,12 @@ const SINGLETON_TAGS = new Set([
 */
 class TextTree {
     constructor() {
-        this.children = new Map;
+        this.children = new Map();
     }
     //Inserts the specified string into the tree,
     //including all necessary sub-trees
     insertWord(word) {
-        const firstLetter = word.substring(0, 1); //can be '' if word is empty
+        const firstLetter = word.slice(0, 1); //can be '' if word is empty
         let child = this.children.get(firstLetter);
         if (!child) {
             child = new TextTree;
@@ -103,9 +103,9 @@ function validAmpersandCode(string, index) {
         return true; //if it starts "&1" or "&#", it must start an escape sequence
     //Iterate down levels of the escape code tree and indices in the string
     //If tree is ever undefined, we know no codes start with this sequence
-    for (let tree = AMPERSAND_TEXT_CODES; tree; tree = tree.getChild(string[index]), index++) {
+    for (let tree = AMPERSAND_TEXT_CODES; tree; tree = tree.getChild(string[index++])) {
         if (string[index] === ';')
-            return tree.getChild('') !== undefined; //make sure this a valid complete code, not just the start to one
+            return !!tree.getChild(''); //make sure this a valid complete code, not just the start to one
     }
     return false;
 }

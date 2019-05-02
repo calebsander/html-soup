@@ -8,7 +8,7 @@ function isWhiteSpace(str: string) {
 		if (WHITESPACE.test(str[0])) str = str.trimLeft()
 		else if (str.startsWith(HTML_COMMENT_START)) {
 			const commentEndIndex = str.indexOf(HTML_COMMENT_END, HTML_COMMENT_START.length)
-			if (commentEndIndex > -1) str = str.substring(commentEndIndex + HTML_COMMENT_END.length)
+			if (commentEndIndex > -1) str = str.slice(commentEndIndex + HTML_COMMENT_END.length)
 			else return false
 		}
 		else return false
@@ -33,19 +33,19 @@ type AttributeType = typeof EXISTING | AttributeTypeString
 const ATTRIBUTE_TYPES: AttributeTypeString[] = [CONTAINING_WHOLE_WORD, STARTING_WHOLE_WORD, STARTING, ENDING, CONTAINING, EQUALING /*must be matched last*/]
 class AttributeMatch {
 	constructor(
-		public readonly attribute: string,
-		public readonly matchType: AttributeType,
-		public readonly value?: string
+		readonly attribute: string,
+		readonly matchType: AttributeType,
+		readonly value?: string
 	) {
 		if (matchType !== EXISTING && value === undefined) throw new Error('Value not specified')
 	}
 }
 const stripQuotes = (str: string): string =>
-	(str.length > 1 && str[0] === '"' && str.substr(-1) === '"') ? str.slice(1, -1) : str
+	(str.length > 1 && str[0] === '"' && str.slice(-1) === '"') ? str.slice(1, -1) : str
 
 type MatchSet = Set<HtmlTag>
 abstract class Selector {
-	public abstract findMatches(dom: Children, recursive: boolean, matchSet: MatchSet): void
+	abstract findMatches(dom: Children, recursive: boolean, matchSet: MatchSet): void
 }
 class SingleSelector extends Selector { //selector that doesn't relate different selectors (e.g. div.hide#one:hover but not div > ul.abc)
 	private tagName!: string
@@ -76,9 +76,9 @@ class SingleSelector extends Selector { //selector that doesn't relate different
 						let index = name.indexOf(attributeType)
 						if (index > -1) {
 							this.attributes.push(new AttributeMatch(
-								name.substring(0, index),
+								name.slice(0, index),
 								attributeType,
-								stripQuotes(name.substring(index + attributeType.length))
+								stripQuotes(name.slice(index + attributeType.length))
 							))
 							noAttrMatch = false
 							break
@@ -332,7 +332,7 @@ class AfterSelector extends Selector {
 function makeSelector(str: string): Selector {
 	for (let i = 1; i + 1 < str.length; i++) {
 		if (str[i] === ' ' && (isSeparator(str[i - 1]) || isSeparator(str[i + 1]))) {
-			str = str.substring(0, i) + str.substring(i + 1)
+			str = str.slice(0, i) + str.slice(i + 1)
 			i--
 		}
 	}
@@ -345,7 +345,7 @@ function makeSelector(str: string): Selector {
 			const char = selectorString[i]
 			if (isSeparator(char) && !(insideBrackets || insideQuotes)) {
 				selectorPieces.push({
-					selector: new SingleSelector(selectorString.substring(selectorStart, i)),
+					selector: new SingleSelector(selectorString.slice(selectorStart, i)),
 					separator: char
 				})
 				selectorStart = i + 1
@@ -357,7 +357,7 @@ function makeSelector(str: string): Selector {
 				else if (char === ']') insideBrackets--
 			}
 		}
-		let selector: Selector = new SingleSelector(selectorString.substring(selectorStart))
+		let selector: Selector = new SingleSelector(selectorString.slice(selectorStart))
 		for (let i = selectorPieces.length - 1; i > -1; i--) { //build selector from right to left
 			const selectorPiece = selectorPieces[i]
 			switch (selectorPiece.separator) {

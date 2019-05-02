@@ -19,12 +19,13 @@ export declare class HtmlTag {
     children: Children;
     readonly parent: HtmlTag | null;
     private classSet;
-    constructor({type, attributes, children, parent}: HtmlParams);
+    constructor({ type, attributes, children, parent }: HtmlParams);
     setChildren(children: Children): void;
     readonly child: TextNode | HtmlTag;
     readonly classes: Set<string>;
 }
-declare const _default: ((str: string | Buffer, trimText?: boolean) => HtmlTag | TextNode | (HtmlTag | TextNode)[]) & {
+declare function parse(str: string | Buffer, trimText?: boolean): Children | HtmlTag | TextNode;
+declare const _default: typeof parse & {
     HtmlTag: typeof HtmlTag;
     TextNode: typeof TextNode;
 };

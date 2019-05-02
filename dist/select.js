@@ -10,7 +10,7 @@ function isWhiteSpace(str) {
         else if (str.startsWith(HTML_COMMENT_START)) {
             const commentEndIndex = str.indexOf(HTML_COMMENT_END, HTML_COMMENT_START.length);
             if (commentEndIndex > -1)
-                str = str.substring(commentEndIndex + HTML_COMMENT_END.length);
+                str = str.slice(commentEndIndex + HTML_COMMENT_END.length);
             else
                 return false;
         }
@@ -35,7 +35,7 @@ class AttributeMatch {
             throw new Error('Value not specified');
     }
 }
-const stripQuotes = (str) => (str.length > 1 && str[0] === '"' && str.substr(-1) === '"') ? str.slice(1, -1) : str;
+const stripQuotes = (str) => (str.length > 1 && str[0] === '"' && str.slice(-1) === '"') ? str.slice(1, -1) : str;
 class Selector {
 }
 class SingleSelector extends Selector {
@@ -60,7 +60,7 @@ class SingleSelector extends Selector {
                     for (const attributeType of ATTRIBUTE_TYPES) {
                         let index = name.indexOf(attributeType);
                         if (index > -1) {
-                            this.attributes.push(new AttributeMatch(name.substring(0, index), attributeType, stripQuotes(name.substring(index + attributeType.length))));
+                            this.attributes.push(new AttributeMatch(name.slice(0, index), attributeType, stripQuotes(name.slice(index + attributeType.length))));
                             noAttrMatch = false;
                             break;
                         }
@@ -68,7 +68,7 @@ class SingleSelector extends Selector {
                     if (noAttrMatch)
                         this.attributes.push(new AttributeMatch(name, EXISTING));
                     break;
-                case PSEUDOS://todo: :not(), :nth-*()
+                case PSEUDOS: //todo: :not(), :nth-*()
                     this.pseudos.push(name);
             }
         };
@@ -358,7 +358,7 @@ class AfterSelector extends Selector {
 function makeSelector(str) {
     for (let i = 1; i + 1 < str.length; i++) {
         if (str[i] === ' ' && (isSeparator(str[i - 1]) || isSeparator(str[i + 1]))) {
-            str = str.substring(0, i) + str.substring(i + 1);
+            str = str.slice(0, i) + str.slice(i + 1);
             i--;
         }
     }
@@ -371,7 +371,7 @@ function makeSelector(str) {
             const char = selectorString[i];
             if (isSeparator(char) && !(insideBrackets || insideQuotes)) {
                 selectorPieces.push({
-                    selector: new SingleSelector(selectorString.substring(selectorStart, i)),
+                    selector: new SingleSelector(selectorString.slice(selectorStart, i)),
                     separator: char
                 });
                 selectorStart = i + 1;
@@ -387,8 +387,8 @@ function makeSelector(str) {
                     insideBrackets--;
             }
         }
-        let selector = new SingleSelector(selectorString.substring(selectorStart));
-        for (let i = selectorPieces.length - 1; i > -1; i--) {
+        let selector = new SingleSelector(selectorString.slice(selectorStart));
+        for (let i = selectorPieces.length - 1; i > -1; i--) { //build selector from right to left
             const selectorPiece = selectorPieces[i];
             switch (selectorPiece.separator) {
                 case ' ':
