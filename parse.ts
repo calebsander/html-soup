@@ -1,5 +1,7 @@
 import htmlDecode from './html-decode'
 
+const DATASET_ATTR_PREFIX = 'data-'
+
 export interface Attributes {
 	[attr: string]: string | boolean | undefined
 }
@@ -9,6 +11,9 @@ export interface HtmlParams {
 	attributes: Attributes
 	children?: Children
 	parent: HtmlTag | null
+}
+export interface DataSet {
+	[attr: string]: string
 }
 
 export class TextNode {
@@ -36,11 +41,24 @@ export class HtmlTag {
 	}
 	get classes(): Set<string> {
 		if (!this.classSet) {
-			this.classSet = (typeof this.attributes.class === 'string')
+			this.classSet = typeof this.attributes.class === 'string'
 				? new Set(this.attributes.class.split(' '))
 				: new Set
 		}
 		return this.classSet
+	}
+	get dataset(): DataSet {
+		const dataset: DataSet = {}
+		for (const attribute in this.attributes) {
+			if (!attribute.startsWith(DATASET_ATTR_PREFIX)) continue
+			const value = this.attributes[attribute]
+			if (value === undefined) continue
+
+			const dataName = attribute.slice(DATASET_ATTR_PREFIX.length)
+				.replace(/-([a-z])/g, (_, c: string) => c.toUpperCase())
+			dataset[dataName] = typeof value === 'string' ? value : ''
+		}
+		return dataset
 	}
 }
 

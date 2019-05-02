@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const html_decode_1 = require("./html-decode");
+const DATASET_ATTR_PREFIX = 'data-';
 class TextNode {
     constructor(text) {
         this.text = text;
@@ -23,11 +24,25 @@ class HtmlTag {
     }
     get classes() {
         if (!this.classSet) {
-            this.classSet = (typeof this.attributes.class === 'string')
+            this.classSet = typeof this.attributes.class === 'string'
                 ? new Set(this.attributes.class.split(' '))
                 : new Set;
         }
         return this.classSet;
+    }
+    get dataset() {
+        const dataset = {};
+        for (const attribute in this.attributes) {
+            if (!attribute.startsWith(DATASET_ATTR_PREFIX))
+                continue;
+            const value = this.attributes[attribute];
+            if (value === undefined)
+                continue;
+            const dataName = attribute.slice(DATASET_ATTR_PREFIX.length)
+                .replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+            dataset[dataName] = typeof value === 'string' ? value : '';
+        }
+        return dataset;
     }
 }
 exports.HtmlTag = HtmlTag;

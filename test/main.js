@@ -162,3 +162,9 @@ assertDomMatches(htmlSoup.select(dom, 'div[abc="\\""]'), new Set([first, second]
 assertDomMatches(htmlSoup.select(dom, 'div[def="]"]'), new Set([second, third]));
 assertDomMatches(htmlSoup.select(dom, 'div[def=\\]]'), new Set([second, third]));
 assertDomMatches(htmlSoup.select(dom, 'div[def="]"][abc="\\""]'), new Set([second]));
+
+// Computed attributes
+dom = htmlSoup.parse('<div id="user" data-id="1234567890" data-user="johndoe" data-date-of-birth>John Doe</div>');
+assert.equal(dom.dataset, {id: '1234567890', user: 'johndoe', dateOfBirth: ''});
+dom = htmlSoup.parse('<br>');
+assert.equal(dom.dataset, {});

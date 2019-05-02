@@ -9,6 +9,9 @@ export interface HtmlParams {
     children?: Children;
     parent: HtmlTag | null;
 }
+export interface DataSet {
+    [attr: string]: string;
+}
 export declare class TextNode {
     readonly text: string;
     constructor(text: string);
@@ -23,6 +26,7 @@ export declare class HtmlTag {
     setChildren(children: Children): void;
     readonly child: TextNode | HtmlTag;
     readonly classes: Set<string>;
+    readonly dataset: DataSet;
 }
 declare function parse(str: string | Buffer, trimText?: boolean): Children | HtmlTag | TextNode;
 declare const _default: typeof parse & {
