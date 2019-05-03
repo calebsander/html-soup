@@ -36,7 +36,7 @@ When navigating the DOM tree, you can use `htmlTag.child` to get the first child
 	- `[attr^=val]` or `[attr^="val"]`: select elements with attribute `attr`'s value starting with `val`
 	- `[attr$=val]` or `[attr$="val"]`: select elements with attribute `attr`'s value ending with `val`
 	- `[attr*=val]` or `[attr*="val"]`: select elements with attribute `attr`'s value containing `val`
-	- These [CSS pseudo-classes](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes) are also supported: `:checked`, `:disabled`, `:empty`, `:first-child`, `:first-of-type`, `:indeterminate`, `:last-child`, `:last-of-type`, `:only-child`, `:only-of-type`, `:optional`, `:required`, `:root`
+	- These [CSS pseudo-classes](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes) are also supported: `:checked`, `:disabled`, `:empty`, `:first-child`, `:first-of-type`, `:indeterminate`, `:last-child`, `:last-of-type`, `:nth-child()`, `:nth-last-child()`, `:nth-last-of-type()`, `:nth-of-type()`, `:only-child`, `:only-of-type`, `:optional`, `:required`, `:root`
 
 ## Examples
 ````javascript

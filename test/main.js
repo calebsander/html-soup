@@ -81,7 +81,18 @@ assertDomMatches(htmlSoup.parse('<script> const abc = 1; console.log(2 < abc > 3
 ]}))
 
 //Basic selectors
-let dom = htmlSoup.parse('<e checked /><c /><a><b id = "three"><c disabled="disabled"></c></b><c /></a><d /><c class = "one two"></c>');
+let dom = htmlSoup.parse(`
+	<e checked />
+	<c />
+	<a>
+		<b id = "three">
+			<c disabled="disabled"></c>
+		</b>
+		<c />
+	</a>
+	<d />
+	<c class = "one two"></c>
+`);
 let disabledC = new HtmlTag({type: 'c', attributes: {disabled: 'disabled'}, children: []}),
 	emptyC1 = new HtmlTag({type: 'c', attributes: {}, children: []}),
 	emptyC2 = new HtmlTag({type: 'c', attributes: {}, children: []}),
@@ -136,6 +147,66 @@ assertDomMatches(htmlSoup.select(someRequired, ':required'), new Set([
 	new HtmlTag({type: 'input', attributes: {required: true}, children: []})
 ]));
 assertDomMatches(htmlSoup.select(dom, 'b:root, c:root, d:root, e:root'), new Set([emptyC1, lastC, new HtmlTag({type: 'd', attributes: {}, children: []}), e]));
+//Nth selectors
+const nthDom = htmlSoup.parse(`
+	<root>
+		<a one />
+		<b one />
+		<a two />
+		<c one />
+		<c two />
+		<a three/>
+	</root>
+`)
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(5)'), new Set([
+	new HtmlTag({type: 'c', attributes: {two: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(3n)'), new Set([
+	new HtmlTag({type: 'a', attributes: {two: true}, children: []}),
+	new HtmlTag({type: 'a', attributes: {three: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(0n+3)'), new Set([
+	new HtmlTag({type: 'a', attributes: {two: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(n+4)'), new Set([
+	new HtmlTag({type: 'c', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'c', attributes: {two: true}, children: []}),
+	new HtmlTag({type: 'a', attributes: {three: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(-n+2)'), new Set([
+	new HtmlTag({type: 'a', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'b', attributes: {one: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(3n-100)'), new Set([
+	new HtmlTag({type: 'b', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'c', attributes: {two: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(n+2):nth-child(-n+4)'), new Set([
+	new HtmlTag({type: 'b', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'a', attributes: {two: true}, children: []}),
+	new HtmlTag({type: 'c', attributes: {one: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(even)'), new Set([
+	new HtmlTag({type: 'b', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'c', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'a', attributes: {three: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-child(odd)'), new Set([
+	new HtmlTag({type: 'a', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'a', attributes: {two: true}, children: []}),
+	new HtmlTag({type: 'c', attributes: {two: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > :nth-last-child(2n+3)'), new Set([
+	new HtmlTag({type: 'b', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'c', attributes: {one: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > a:nth-of-type(odd)'), new Set([
+	new HtmlTag({type: 'a', attributes: {one: true}, children: []}),
+	new HtmlTag({type: 'a', attributes: {three: true}, children: []})
+]))
+assertDomMatches(htmlSoup.select(nthDom, 'root > c:nth-last-of-type(-3n+8)'), new Set([
+	new HtmlTag({type: 'c', attributes: {one: true}, children: []})
+]))
 //Attributes
 dom = htmlSoup.parse('<a one = two two = "three-four" six = "seven" /><a two = "threefour" five six="eight"/>');
 let firstA = new HtmlTag({type: 'a', attributes: {one: 'two', two: 'three-four', six: 'seven'}, children: []}),
