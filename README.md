@@ -39,31 +39,47 @@ When navigating the DOM tree, you can use `htmlTag.child` to get the first child
 	- These [CSS pseudo-classes](https://developer.mozilla.org/en-US/docs/Web/CSS/Pseudo-classes) are also supported: `:checked`, `:disabled`, `:empty`, `:first-child`, `:first-of-type`, `:indeterminate`, `:last-child`, `:last-of-type`, `:nth-child()`, `:nth-last-child()`, `:nth-last-of-type()`, `:nth-of-type()`, `:only-child`, `:only-of-type`, `:optional`, `:required`, `:root`
 
 ## Examples
-````javascript
-let dom = htmlSoup.parse('<div id="one">Hi</div>');
+````js
+let dom = htmlSoup.parse('<div id="one">Hi</div>')
 /*
 HtmlTag {
   type: 'div',
   attributes: { id: 'one' },
-  parent:
-   HtmlTag {
-     type: null,
-     attributes: {},
-     parent: null,
-     children: [ [Circular] ] },
-  children: [ TextNode { text: 'Hi' } ] }
+  parent: HtmlTag {
+    type: '',
+    attributes: {},
+    parent: null,
+    children: [ [Circular] ]
+  },
+  children: [ TextNode { text: 'Hi' } ]
+}
 */
-let text = dom.child; //TextNode { text: 'Hi' }
+let text = dom.child // TextNode { text: 'Hi' }
 
-let firstYellow = htmlSoup.select(htmlSoup.parse('<p>One</p><p class="red yellow">Two</p><p class="yellow">Three</p>'), 'p.yellow:first-of-type');
+let firstYellow = htmlSoup.select(
+	htmlSoup.parse(`
+		<p>One</p>
+		<p class="red yellow">Two</p>
+		<p class="yellow">Three</p>
+	`),
+	'p.yellow:first-of-type'
+)
 /*
-[ HtmlTag {
+Set {
+  HtmlTag {
     type: 'p',
     attributes: { class: 'red yellow' },
-    parent: HtmlTag { type: null, attributes: {}, parent: null, children: [Object] },
-    children: [ TextNode { text: 'Two' } ] } ]
+    parent: HtmlTag {
+      type: '',
+      attributes: {},
+      parent: null,
+      children: [Array]
+    },
+    children: [ [TextNode] ]
+  }
+}
 */
 
-let classes = htmlSoup.parse('<div class="one two three"></div>').classes;
-//Set { 'one', 'two', 'three' }
+let {classes} = htmlSoup.parse('<div class="one two three"></div>')
+// Set { 'one', 'two', 'three' }
 ````

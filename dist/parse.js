@@ -1,6 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const html_decode_1 = require("./html-decode");
+const html_decode_1 = __importDefault(require("./html-decode"));
 const DATASET_ATTR_PREFIX = 'data-';
 class TextNode {
     constructor(text) {
@@ -23,12 +26,9 @@ class HtmlTag {
         return this.children[0];
     }
     get classes() {
-        if (!this.classSet) {
-            this.classSet = typeof this.attributes.class === 'string'
-                ? new Set(this.attributes.class.split(' '))
-                : new Set;
-        }
-        return this.classSet;
+        return typeof this.attributes.class === 'string'
+            ? new Set(this.attributes.class.split(' '))
+            : new Set;
     }
     get dataset() {
         const dataset = {};

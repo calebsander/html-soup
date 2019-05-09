@@ -21,7 +21,6 @@ export declare class HtmlTag {
     readonly attributes: Attributes;
     children: Children;
     readonly parent: HtmlTag | null;
-    private classSet;
     constructor({ type, attributes, children, parent }: HtmlParams);
     setChildren(children: Children): void;
     readonly child: TextNode | HtmlTag;

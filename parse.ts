@@ -24,7 +24,6 @@ export class HtmlTag {
 	readonly attributes: Attributes
 	children!: Children
 	readonly parent: HtmlTag | null
-	private classSet: Set<string> | undefined
 
 	constructor({type, attributes, children, parent}: HtmlParams) {
 		this.type = type
@@ -40,12 +39,9 @@ export class HtmlTag {
 		return this.children[0]
 	}
 	get classes(): Set<string> {
-		if (!this.classSet) {
-			this.classSet = typeof this.attributes.class === 'string'
-				? new Set(this.attributes.class.split(' '))
-				: new Set
-		}
-		return this.classSet
+		return typeof this.attributes.class === 'string'
+			? new Set(this.attributes.class.split(' '))
+			: new Set
 	}
 	get dataset(): DataSet {
 		const dataset: DataSet = {}
